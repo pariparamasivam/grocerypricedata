@@ -32,9 +32,9 @@ import com.app.grocery.exception.constants.CommonConstants;
 import com.app.grocery.repository.GroceryPriceDataRepository;
 import com.app.grocery.service.exception.GroceryPriceDataBusinessException;
 
-
 /**
- * Read the excel file from classpath location and load in grocery_price_data table.
+ * Read the excel file from classpath location and load in grocery_price_data
+ * table.
  *
  *
  */
@@ -47,15 +47,15 @@ public class GroceryAppRunner implements CommandLineRunner {
 	@Override
 	@Transactional
 	public void run(String... args) throws Exception {
-		logger.info("Inside run method in {}",this.getClass());
+		logger.info("Inside run method in {}", this.getClass());
 		FileInputStream excelFileStream = null;
 		Workbook workbook = null;
 		List<GroceryPriceData> groceryPriceDataList = null;
 		try {
 			groceryPriceDataList = new ArrayList<>();
-			//Date format with hypen dd-MM-yyyy.
+			// Date format with hypen dd-MM-yyyy.
 			DateFormat formatterForHypen = new SimpleDateFormat(CommonConstants.DATE_FORMAT_HYPEN);
-			//Date format with slash dd/MM/yyyy.
+			// Date format with slash dd/MM/yyyy.
 			DateFormat formatterForSlash = new SimpleDateFormat(CommonConstants.DATE_FORMAT_SLASH);
 			logger.info("Get excel file from classpath location.");
 			File file = ResourceUtils.getFile(CommonConstants.FILE_LOCATION);
@@ -66,22 +66,22 @@ public class GroceryAppRunner implements CommandLineRunner {
 			Sheet sheet = workbook.getSheetAt(0);
 			GroceryPriceData groceryPriceData = null;
 			logger.info("Iterating rows in excelsheet and added set into object.");
-			 for (int i = 1; i < sheet.getPhysicalNumberOfRows(); i++) {
+			for (int i = 1; i < sheet.getPhysicalNumberOfRows(); i++) {
 
 				groceryPriceData = new GroceryPriceData();
 
 				XSSFRow row = (XSSFRow) sheet.getRow(i);
-				logger.info("Processing row number :" +row.getRowNum());
+				logger.info("Processing row number :" + row.getRowNum());
 
 				row.getCell(3).setCellType(CellType.STRING);
-				//If itemname is not empty then take item for further processing.
+				// If itemname is not empty then take item for further processing.
 				Cell cell = row.getCell(1, Row.MissingCellPolicy.RETURN_BLANK_AS_NULL);
 				if (cell != null) {
-					//Set Item Name in object.
+					// Set Item Name in object.
 					groceryPriceData.setItemName(row.getCell(1).getStringCellValue());
-					//Date object cell.
+					// Date object cell.
 					CellType cellType = row.getCell(2).getCellType();
-					//Check date cell type STRING/NUMBER.
+					// Check date cell type STRING/NUMBER.
 					switch (cellType) {
 					case STRING:
 						Date date = null;
@@ -91,15 +91,15 @@ public class GroceryAppRunner implements CommandLineRunner {
 						} else {
 							date = formatterForSlash.parse(dateValue);
 						}
-						//Set Date value in object.
+						// Set Date value in object.
 						groceryPriceData.setDateadded(date);
 						break;
 					case NUMERIC:
-						//Set Date value in object.
+						// Set Date value in object.
 						groceryPriceData.setDateadded(row.getCell(2).getDateCellValue());
 						break;
 					}
-					//Price cell value.
+					// Price cell value.
 					String priceVal = row.getCell(3).getStringCellValue();
 					Double price = null;
 					if (priceVal != null) {
@@ -109,10 +109,10 @@ public class GroceryAppRunner implements CommandLineRunner {
 							price = new Double(priceVal);
 						}
 					}
-					//Set price data in object.
+					// Set price data in object.
 					groceryPriceData.setPrice(price);
-						//Add object in list.
-						groceryPriceDataList.add(groceryPriceData);
+					// Add object in list.
+					groceryPriceDataList.add(groceryPriceData);
 				}
 
 			}
@@ -120,28 +120,27 @@ public class GroceryAppRunner implements CommandLineRunner {
 			groceryPriceDataRepository.saveAll(groceryPriceDataList);
 			logger.info("Data loaded into In-memory database {}", this.getClass());
 		} catch (NumberFormatException e) {
-			logger.error("NumberFormatException execpetion thrown "+e.getMessage()+"{}",this.getClass());
-			throw new GroceryPriceDataBusinessException("NumberFormatException :"+ e.getMessage());
+			logger.error("NumberFormatException execpetion thrown " + e.getMessage() + "{}", this.getClass());
+			throw new GroceryPriceDataBusinessException("NumberFormatException :" + e.getMessage());
 		} catch (FileNotFoundException e) {
-			logger.error("FileNotFoundException execpetion thrown "+e.getMessage() +"{}",this.getClass());
-			throw new GroceryPriceDataBusinessException("FileNotFoundException :" +e.getMessage());
+			logger.error("FileNotFoundException execpetion thrown " + e.getMessage() + "{}", this.getClass());
+			throw new GroceryPriceDataBusinessException("FileNotFoundException :" + e.getMessage());
 		} catch (IOException e) {
-			logger.error("IOException execpetion thrown "+e.getMessage() +"{}",this.getClass());
+			logger.error("IOException execpetion thrown " + e.getMessage() + "{}", this.getClass());
 			throw new GroceryPriceDataBusinessException("IOException :" + e.getMessage());
 		} catch (ParseException e) {
-			logger.error("ParseException execpetion thrown "+e.getMessage() +"{}",this.getClass());
-			throw new GroceryPriceDataBusinessException("ParseException :" +e.getMessage());
+			logger.error("ParseException execpetion thrown " + e.getMessage() + "{}", this.getClass());
+			throw new GroceryPriceDataBusinessException("ParseException :" + e.getMessage());
 		} finally {
-			if(excelFileStream != null) {
+			if (excelFileStream != null) {
 				logger.info("Close InputStream Object.");
 				excelFileStream.close();
 			}
-			if(workbook != null) {
+			if (workbook != null) {
 				logger.info("Close Workbook Object.");
 				workbook.close();
 			}
 		}
-		
 
 	}
 

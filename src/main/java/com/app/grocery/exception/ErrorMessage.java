@@ -1,7 +1,5 @@
 package com.app.grocery.exception;
 
-import java.util.Date;
-
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 import lombok.AllArgsConstructor;
