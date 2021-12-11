@@ -1,109 +1,142 @@
 package com.app.grocery.service;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.Assert.assertThat;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.when;
 
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.setup.MockMvcBuilders;
-import org.springframework.web.context.WebApplicationContext;
 
 import com.app.grocery.GroceryAppApplication;
+import com.app.grocery.entity.GroceryPriceData;
 import com.app.grocery.model.GroceryPriceDataResponse;
 import com.app.grocery.repository.GroceryPriceDataRepository;
+import com.app.grocery.service.impl.GroceryPriceDataServiceImpl;
 
-@RunWith(SpringRunner.class)
 @SpringBootTest(classes = GroceryAppApplication.class)
-@AutoConfigureMockMvc 
-@AutoConfigureTestDatabase
-public class GroceryAppServiceTest {
+@AutoConfigureMockMvc
+@ExtendWith(MockitoExtension.class)
+public class GroceryPriceDataServiceTests {
+
+	@InjectMocks
+	private IGroceryPriceDataService groceryPriceDataService = new GroceryPriceDataServiceImpl();
+
+	@Mock
+	private GroceryPriceDataRepository groceryPriceDataRepository;
+
+	@Mock
+	ModelMapper modelMapper;
 
 	@Autowired
 	private MockMvc mockMvc;
-	
-	@MockBean
-	private IGroceryPriceDataService groceryPriceDataService;
-	
-	@MockBean
-	private GroceryPriceDataRepository groceryPriceDataRepository;
-	
-	  @Autowired
-	  private WebApplicationContext webApplicationContext;
 
-	  @Before
-	  public void setUp() {
-	    mockMvc = MockMvcBuilders.webAppContextSetup(webApplicationContext).build();
-	  }
-	  
-	  /**
-		  * Get Mock List for testing.
-		  * @return
-		  * @throws ParseException
-		  */
-		public List<GroceryPriceDataResponse> getMockList() throws ParseException {
-			String date01Str = "01-01-2011";
-			DateFormat formatter = new SimpleDateFormat("dd-MM-yyyy");
-			Date date01 = formatter.parse(date01Str);
-			String date02Str = "20-05-2012";
-			Date date02 = formatter.parse(date02Str);
-			List<GroceryPriceDataResponse> mockList = Arrays.asList(
-					new GroceryPriceDataResponse(1L, "Kashini greens", date01, 10.0, null),
-					new GroceryPriceDataResponse(2L, "Kashini greens", date02, 20.0, null));
-			
-			return mockList;
-		}
+	List<GroceryPriceData> mockList = new ArrayList<>();
+	List<GroceryPriceDataResponse> mockListResponse = new ArrayList<>();
+	GroceryPriceData groceryPriceData = new GroceryPriceData();
+	GroceryPriceDataResponse groceryPriceDataResponse = new GroceryPriceDataResponse();
 
-		/**
-		 * Test -Get item details which has max price.
-		 * @throws Exception
-		 */
-		@Test
-		public void getGroceryItemByMaxPriceAndSorted() throws Exception {
-			List<GroceryPriceDataResponse> mockList = getMockList();
-			when(groceryPriceDataService.findGroceryByMaxPriceAndSorted()).thenReturn(mockList);
-			assertThat(groceryPriceDataService.findGroceryByMaxPriceAndSorted()).isEqualTo(mockList);
-		}
-		 
-	  
-		/**
-		 * Test- Get item names sorted by search text.
-		 * @throws Exception 
-		 */
-		@Test
-		public void getAllGroceryItemsSortByName() throws Exception {
-			List<GroceryPriceDataResponse> mockList = getMockList();
-			when(groceryPriceDataService.findByItemName(anyString())).thenReturn(mockList);
-			assertThat(groceryPriceDataService.findByItemName("Kashini greens")).isEqualTo(mockList);
-		}
-		 
-		/**
-		 * Test - Get Item name with max price by search text.
-		 * @throws Exception
-		 */
-		@Test
-		public void getAllGroceryItemsByNameContains() throws Exception {
-			List<GroceryPriceDataResponse> mockList = getMockList();
-			when(groceryPriceDataService.findByItemNameContaining(anyString())).thenReturn(mockList);
+	/**
+	 * Get Entity Mock List for testing.
+	 * 
+	 * @return
+	 * @throws ParseException
+	 */
+	public List<GroceryPriceData> getMockList() throws ParseException {
+		String date01Str = "01-01-2011";
+		DateFormat formatter = new SimpleDateFormat("dd-MM-yyyy");
+		Date date01 = formatter.parse(date01Str);
+		List<GroceryPriceData> mockList = Arrays.asList(new GroceryPriceData(1L, "Kashini greens", date01, 10.0));
 
-			assertThat(groceryPriceDataService.findByItemNameContaining("Ka")).isEqualTo(mockList);
+		return mockList;
+	}
 
-		}
-		 
+	/**
+	 * Mock Response object.
+	 * 
+	 * @return
+	 * @throws ParseException
+	 */
+	public List<GroceryPriceDataResponse> getMockListResponse() throws ParseException {
+		String date01Str = "01-01-2011";
+		DateFormat formatter = new SimpleDateFormat("dd-MM-yyyy");
+		Date date01 = formatter.parse(date01Str);
+		List<GroceryPriceDataResponse> mockList = Arrays
+				.asList(new GroceryPriceDataResponse(1L, "Kashini greens", date01, 10.0, null));
+
+		return mockList;
+	}
+
+	/**
+	 * Method : findGroceryByMaxPriceAndSorted, Test -Get item details which has max
+	 * price.
+	 * 
+	 * @throws Exception
+	 */
+	@Test
+	public void getGroceryItemByMaxPriceAndSorted() throws Exception {
+		List<GroceryPriceData> mockList = getMockList();
+		when(groceryPriceDataRepository.findGroceryByMaxPriceAndSorted()).thenReturn(mockList);
+		String date01Str = "01-01-2011";
+		DateFormat formatter = new SimpleDateFormat("dd-MM-yyyy");
+		Date date01 = formatter.parse(date01Str);
+		GroceryPriceDataResponse g = new GroceryPriceDataResponse(1L, "Kashini greens", date01, 10.0, null);
+		when(modelMapper.map(any(), any())).thenReturn(g);
+		List<GroceryPriceDataResponse> groceryDataResponses = groceryPriceDataService.findGroceryByMaxPriceAndSorted();
+		assertEquals("Kashini greens", groceryDataResponses.get(0).getItemName());
+	}
+
+	/**
+	 * Method : findByItemNameContaining, Test -Get item details which has max
+	 * price.
+	 * 
+	 * @throws Exception
+	 */
+	@Test
+	public void getAllGroceryItemsByNameContains() throws Exception {
+		List<GroceryPriceData> mockList = getMockList();
+		when(groceryPriceDataRepository.findByItemNameContaining(anyString())).thenReturn(mockList);
+		String date01Str = "01-01-2011";
+		DateFormat formatter = new SimpleDateFormat("dd-MM-yyyy");
+		Date date01 = formatter.parse(date01Str);
+		GroceryPriceDataResponse g = new GroceryPriceDataResponse(1L, "Kashini greens", date01, 10.0, null);
+		when(modelMapper.map(any(), any())).thenReturn(g);
+		List<GroceryPriceDataResponse> groceryDataResponses = groceryPriceDataService.findByItemNameContaining("Kas");
+		assertEquals("Kashini greens", groceryDataResponses.get(0).getItemName());
+	}
+
+	/**
+	 * Method : findByItemName, Test -Get item details which has max price.
+	 * 
+	 * @throws Exception
+	 */
+	@Test
+	public void getAllGroceryItemsSortByName() throws Exception {
+		List<GroceryPriceData> mockList = getMockList();
+		when(groceryPriceDataRepository.findByItemName(anyString())).thenReturn(mockList);
+		String date01Str = "01-01-2011";
+		DateFormat formatter = new SimpleDateFormat("dd-MM-yyyy");
+		Date date01 = formatter.parse(date01Str);
+		GroceryPriceDataResponse g = new GroceryPriceDataResponse(1L, "Kashini greens", date01, 10.0, null);
+		when(modelMapper.map(any(), any())).thenReturn(g);
+		List<GroceryPriceDataResponse> groceryDataResponses = groceryPriceDataService.findByItemName("Kashini greens");
+		assertEquals("Kashini greens", groceryDataResponses.get(0).getItemName());
+	}
+
 }
