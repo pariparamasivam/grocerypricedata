@@ -42,7 +42,7 @@ import com.google.gson.GsonBuilder;
 @SpringBootTest(classes = GroceryAppApplication.class)
 @AutoConfigureMockMvc
 @ExtendWith(MockitoExtension.class)
-class GroceryPriceDataControllerTests {
+public class GroceryPriceDataControllerTests {
 
 	@Autowired
 	private MockMvc mockMvc;
