@@ -6,7 +6,6 @@ import org.modelmapper.ModelMapper;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.domain.EntityScan;
-import org.springframework.boot.web.servlet.support.SpringBootServletInitializer;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
@@ -19,34 +18,53 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import io.swagger.v3.oas.annotations.OpenAPIDefinition;
 import io.swagger.v3.oas.annotations.info.Info;
 
-
 @SpringBootApplication
 @EnableJpaRepositories("com.app.grocery.repository")
 @ComponentScan(basePackages = { "com.app.grocery" })
-@EntityScan("com.app.grocery.entity")   
+@EntityScan("com.app.grocery.entity")
 @Configuration
-@OpenAPIDefinition(info = @Info(title = "Grocery Price Data API", version = "0.1", description="Grocery Price Data Service"))
-public class GroceryAppApplication extends SpringBootServletInitializer {
+@OpenAPIDefinition(info = @Info(title = "Grocery Price Data API", version = "0.1", description = "Grocery Price Data Service"))
+public class GroceryAppApplication {
 
-	
-	
+	/**
+	 * Start grocery price data application.
+	 * 
+	 * @param args
+	 */
 	public static void main(String[] args) {
 		SpringApplication.run(GroceryAppApplication.class, args);
 	}
-	
-	  @Bean 
-	  public ModelMapper modelMapper(){ return new ModelMapper(); }
-	  
-	  @Bean
-	  ObjectMapper jacksonObjectMapper(Jackson2ObjectMapperBuilder builder) {
-	      return builder.createXmlMapper(false)
-	              // Set timezone for JSON serialization as system timezone
-	              .timeZone(TimeZone.getDefault())
-	              .build();
-	  }
-	 
-	   @Bean
-	    public MethodValidationPostProcessor methodValidationPostProcessor() {
-	        return new MethodValidationPostProcessor();
-	    }
+
+	/**
+	 * ModelMapper bean.
+	 * 
+	 * @return
+	 */
+	@Bean
+	public ModelMapper modelMapper() {
+		return new ModelMapper();
+	}
+
+	/**
+	 * Set date format for json response.
+	 * 
+	 * @param builder
+	 * @return
+	 */
+	@Bean
+	ObjectMapper jacksonObjectMapper(Jackson2ObjectMapperBuilder builder) {
+		return builder.createXmlMapper(false)
+				// Set timezone for JSON serialization as system timezone
+				.timeZone(TimeZone.getDefault()).build();
+	}
+
+	/**
+	 * Validate method.
+	 * 
+	 * @return
+	 */
+	@Bean
+	public MethodValidationPostProcessor methodValidationPostProcessor() {
+		return new MethodValidationPostProcessor();
+	}
 }
